@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import CandlestickChart from "@/components/CandlestickChart";
 import type { CandleSeries, FinancialReport, StockSearchResult } from "@/lib/types/financial";
+import { useHydrationSafeReducedMotion } from "@/lib/ui/use-hydration-safe-reduced-motion";
 
 type ReportTab = "candles" | "profit" | "balance" | "revenue";
 
@@ -59,7 +60,7 @@ function RatioBar({ label, value }: { label: string; value: number | null }) {
 }
 
 export default function StockResearch() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useHydrationSafeReducedMotion();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<StockSearchResult[]>([]);
   const [selected, setSelected] = useState<StockSearchResult | null>(null);

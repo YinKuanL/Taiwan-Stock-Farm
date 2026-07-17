@@ -9,7 +9,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "vinext start",
-    "test": "tsx --test tests/market.test.ts && node --test tests/rendered-html.test.mjs tests/ios-source.test.mjs",
+    "test": "tsx --test tests/market.test.ts tests/hydration.test.ts && node --test tests/rendered-html.test.mjs tests/ios-source.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",

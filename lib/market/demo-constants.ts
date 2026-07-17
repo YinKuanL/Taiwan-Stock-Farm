@@ -1,0 +1,3 @@
+export const DEMO_TRADING_DATE = "2026-07-17";
+export const DEMO_LAST_UPDATED = "2026-07-17T05:30:00.000Z";
+

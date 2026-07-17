@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import {
   Area,
@@ -45,6 +45,9 @@ import { marketApiUrl } from "@/lib/market/client";
 import { toLegacyMarketSnapshot, toProductMarketSnapshot } from "@/lib/market/normalize-market-data";
 import type { MarketSnapshot as ProductMarketSnapshot } from "@/lib/market/types";
 import { syncSnapshotToNative } from "@/lib/native/snapshotBridge";
+import { FARM_ANIMATION_LAYOUT } from "@/lib/ui/animation-layout";
+import { formatMarketUpdatedAt } from "@/lib/ui/market-time";
+import { useHydrationSafeReducedMotion } from "@/lib/ui/use-hydration-safe-reduced-motion";
 import type { MarketMover, MarketSnapshot, RealtimeIndexQuote } from "@/lib/types/market";
 import StockResearch from "@/components/StockResearch";
 
@@ -77,7 +80,7 @@ const formatMarketValue = (value: number) => {
 };
 
 function NumberTicker({ value, decimals = 0, suffix = "" }: { value: number; decimals?: number; suffix?: string }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useHydrationSafeReducedMotion();
   const [shown, setShown] = useState(reduceMotion ? value : 0);
 
   useEffect(() => {
@@ -106,7 +109,7 @@ function NumberTicker({ value, decimals = 0, suffix = "" }: { value: number; dec
 }
 
 function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useHydrationSafeReducedMotion();
   return (
     <motion.div
       className={className}
@@ -126,9 +129,8 @@ function FarmScene({ snapshot, focus, onInspect }: {
   onInspect: (title: string, text: string) => void;
 }) {
   const scene = getSceneState(snapshot);
-  const reduceMotion = useReducedMotion();
-  const cropRows = Array.from({ length: 18 }, (_, index) => index);
-  const particles = Array.from({ length: 10 }, (_, index) => index);
+  const reduceMotion = useHydrationSafeReducedMotion();
+  const { animals, clouds, crops, particles, rain } = FARM_ANIMATION_LAYOUT;
   const sceneStyle = {
     "--wind-speed": `${reduceMotion ? 0 : scene.windSpeed}s`,
     "--battle-line": `${scene.battleLine}%`,
@@ -146,10 +148,30 @@ function FarmScene({ snapshot, focus, onInspect }: {
         <span className="sun-ring" />
       </button>
 
-      <div className="cloud cloud-one"><span /><span /><span /></div>
-      <div className="cloud cloud-two"><span /><span /><span /></div>
-      <div className="cloud cloud-three"><span /><span /><span /></div>
-      {scene.sky === "storm" && <div className="rain-layer" aria-hidden="true" />}
+      {clouds.map((cloud, index) => (
+        <div
+          className={`cloud cloud-${["one", "two", "three"][index]}`}
+          key={cloud.id}
+          style={{
+            "--cloud-delay": `${cloud.delay}s`,
+            "--cloud-duration": `${cloud.duration}s`,
+            "--cloud-opacity": cloud.opacity,
+          } as CSSProperties}
+        ><span /><span /><span /></div>
+      ))}
+      {scene.sky === "storm" && (
+        <div className="rain-layer" aria-hidden="true">
+          {rain.map((drop) => (
+            <i key={drop.id} style={{
+              "--rain-left": `${drop.left}%`,
+              "--rain-delay": `${drop.delay}s`,
+              "--rain-duration": `${drop.duration}s`,
+              "--rain-opacity": drop.opacity,
+              "--rain-length": `${drop.length}px`,
+            } as CSSProperties} />
+          ))}
+        </div>
+      )}
 
       <div className="hills hills-back" />
       <div className="hills hills-front" />
@@ -202,7 +224,7 @@ function FarmScene({ snapshot, focus, onInspect }: {
       >
         <span className="field-label">韭菜情緒田</span>
         <span className="crop-grid">
-          {cropRows.map((crop) => <i key={crop} style={{ "--crop-delay": `${(crop % 6) * -0.15}s` } as CSSProperties} />)}
+          {crops.map((crop) => <i key={crop.id} style={{ "--crop-delay": `${crop.delay}s`, "--crop-height": `${crop.height}px` } as CSSProperties} />)}
         </span>
       </button>
 
@@ -219,6 +241,7 @@ function FarmScene({ snapshot, focus, onInspect }: {
       <div className="farm-animals">
         <button
           className="animal chicken-animal"
+          style={{ "--animal-delay": `${animals.chicken.delay}s`, "--animal-duration": `${animals.chicken.duration}s` } as CSSProperties}
           onClick={() => onInspect("巡田小雞", "牠會沿著田邊散步、啄食；市場越平靜，巡田節奏越悠閒。")}
           aria-label="查看會巡田與啄食的小雞"
         >
@@ -228,6 +251,7 @@ function FarmScene({ snapshot, focus, onInspect }: {
         </button>
         <button
           className="animal sheep-animal"
+          style={{ "--animal-delay": `${animals.sheep.delay}s`, "--animal-duration": `${animals.sheep.duration}s` } as CSSProperties}
           onClick={() => onInspect("放牧綿羊", "牠會慢慢走向青草，偶爾低頭吃草，代表市場中的耐心資金。")}
           aria-label="查看會走動與吃草的綿羊"
         >
@@ -238,6 +262,7 @@ function FarmScene({ snapshot, focus, onInspect }: {
         </button>
         <button
           className="animal crow-animal"
+          style={{ "--animal-delay": `${animals.crow.delay}s`, "--animal-duration": `${animals.crow.duration}s` } as CSSProperties}
           onClick={() => onInspect("巡場烏鴉", "牠會繞過戰場上空巡視；風雨越強，飛行路線看起來越緊張。")}
           aria-label="查看在農場上空飛行的烏鴉"
         >
@@ -263,7 +288,13 @@ function FarmScene({ snapshot, focus, onInspect }: {
 
       {scene.showCelebration && (
         <div className="celebration-particles" aria-hidden="true">
-          {particles.map((particle) => <i key={particle} style={{ "--particle": particle } as CSSProperties}>✦</i>)}
+          {particles.map((particle) => <i key={particle.id} style={{
+            "--particle-left": `${particle.left}%`,
+            "--particle-delay": `${particle.delay}s`,
+            "--particle-duration": `${particle.duration}s`,
+            "--particle-size": `${particle.size}px`,
+            "--particle-drift": `${particle.drift}px`,
+          } as CSSProperties}>✦</i>)}
         </div>
       )}
 
@@ -287,12 +318,12 @@ function PowerCard({ kind, value, active, onClick }: {
       onClick={onClick}
       aria-pressed={active}
     >
-      <div className="power-card-top">
+      <span className="power-card-top">
         <span className="power-icon" aria-hidden="true">{bull ? "🐂" : "🐻"}</span>
         <span><small>{bull ? "BULL POWER" : "BEAR POWER"}</small><strong><NumberTicker value={value} suffix="%" /></strong></span>
-      </div>
-      <div className="meter-track"><motion.i initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.8 }} /></div>
-      <p>{bull ? "陽光、作物生長與推進動能" : "烏雲、收割風險與防守壓力"}</p>
+      </span>
+      <span className="meter-track"><motion.i initial={{ width: 0 }} animate={{ width: `${value}%` }} transition={{ duration: 0.8 }} /></span>
+      <span className="power-card-caption">{bull ? "陽光、作物生長與推進動能" : "烏雲、收割風險與防守壓力"}</span>
     </motion.button>
   );
 }
@@ -348,7 +379,8 @@ export default function FarmMarketBattle({ initialData, initialSection = "top" }
       ? "開盤前"
       : snapshot.quotePhase === "closed"
         ? "今日收盤"
-        : snapshot.dataMode === "live" ? "最新收盤" : "DEMO 戰局";
+      : snapshot.dataMode === "live" ? "最新收盤" : "DEMO 戰局";
+  const updatedAt = useMemo(() => formatMarketUpdatedAt(snapshot.lastUpdated), [snapshot.lastUpdated]);
 
   const trendData = useMemo(() => {
     const labels = ["09:00", "10:00", "11:00", "12:00", "13:30"];
@@ -760,7 +792,7 @@ export default function FarmMarketBattle({ initialData, initialSection = "top" }
         <div className="footer-notes">
           <p>資料優先取自臺灣證券交易所 OpenAPI；服務不可用時自動使用示範資料。</p>
           <p><b>免責聲明</b>　本網站僅供資料視覺化與娛樂參考，不構成任何投資建議。</p>
-          <span>最後更新 {new Date(snapshot.lastUpdated).toLocaleString("zh-TW", { hour12: false })} · App v1.0.0 · {process.env.NEXT_PUBLIC_APP_ENV ?? "development"}</span>
+          <span>最後更新 {updatedAt}（台北時間）· App v1.0.0 · {process.env.NEXT_PUBLIC_APP_ENV ?? "development"}</span>
         </div>
       </footer>
       <AnimatePresence>

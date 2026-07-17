@@ -1,5 +1,7 @@
 import { calculateSentiment } from "@/lib/market/calculate-sentiment";
 import { generateNarration } from "@/lib/market/generate-narration";
+import { DEMO_LAST_UPDATED, DEMO_TRADING_DATE } from "@/lib/market/demo-constants";
+import { formatTaipeiQuoteTime } from "@/lib/ui/market-time";
 import type { MarketDataStatus, MarketSnapshot, StockMover } from "@/lib/market/types";
 import type { MarketSnapshot as LegacyMarketSnapshot } from "@/lib/types/market";
 
@@ -12,10 +14,10 @@ const finite = (value: unknown, fallback = 0) => {
 const nullableFinite = (value: unknown) => value === null || value === undefined || value === "" ? null : finite(value, 0);
 const count = (value: unknown) => Math.max(0, Math.round(finite(value)));
 const text = (value: unknown, fallback: string) => typeof value === "string" && value.trim() ? value.trim() : fallback;
-const isoDate = (value: unknown) => /^\d{4}-\d{2}-\d{2}$/.test(String(value ?? "")) ? String(value) : new Date().toISOString().slice(0, 10);
+const isoDate = (value: unknown) => /^\d{4}-\d{2}-\d{2}$/.test(String(value ?? "")) ? String(value) : DEMO_TRADING_DATE;
 const isoTimestamp = (value: unknown) => {
   const parsed = new Date(String(value ?? ""));
-  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+  return Number.isNaN(parsed.getTime()) ? DEMO_LAST_UPDATED : parsed.toISOString();
 };
 
 const movers = (value: unknown): StockMover[] => Array.isArray(value)
@@ -64,7 +66,7 @@ export function normalizeMarketData(input: unknown): MarketSnapshot {
 export function toLegacyMarketSnapshot(snapshot: MarketSnapshot): LegacyMarketSnapshot {
   const dataMode = snapshot.status === "demo" || snapshot.status === "unavailable" ? "demo" : "live";
   const quotePhase = snapshot.status === "live" ? "open" : snapshot.status === "delayed" || snapshot.status === "cached" ? "closed" : undefined;
-  const quoteTime = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(new Date(snapshot.lastUpdated));
+  const quoteTime = formatTaipeiQuoteTime(snapshot.lastUpdated);
   return {
     marketName: snapshot.marketName,
     date: snapshot.tradingDate,

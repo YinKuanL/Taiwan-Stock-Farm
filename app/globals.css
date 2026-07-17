@@ -216,6 +216,17 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(228, 170, 66, 0.
 .celebration-particles { position:absolute; z-index:13; inset:0; pointer-events:none; }.celebration-particles i { --particle:0; position:absolute; left:calc(5% + var(--particle) * 9.3%); top:-20px; color:#ffe078; font-style:normal; font-size:20px; text-shadow:0 0 12px #ffe078; animation:particle-fall 4s linear infinite; animation-delay:calc(var(--particle) * -.37s); }
 .scene-ground-glow { position:absolute; z-index:1; left:25%; right:25%; bottom:-60px; height:150px; border-radius:50%; background:rgba(255,220,107,.15); filter:blur(25px); }
 
+/* Seeded CSS variables keep the first server/client frame identical while
+   preserving organic timing and motion after hydration. */
+.cloud { opacity:var(--cloud-opacity,.86); animation-duration:var(--cloud-duration,34s); animation-delay:var(--cloud-delay,0s); }
+.cloud-two,.cloud-three { animation-delay:var(--cloud-delay,0s); }
+.rain-layer { overflow:hidden; opacity:1; background:none; animation:none; }
+.rain-layer i { position:absolute; left:var(--rain-left); top:-15%; width:2px; height:var(--rain-length); opacity:var(--rain-opacity); border-radius:99px; background:linear-gradient(to bottom,transparent,rgba(220,235,245,.9)); transform:rotate(15deg); animation:rain-drop var(--rain-duration) linear infinite; animation-delay:var(--rain-delay); }
+.crop-grid i { height:var(--crop-height,54px); }
+.chicken-animal,.sheep-animal,.crow-animal { animation-duration:var(--animal-duration); animation-delay:var(--animal-delay); }
+.celebration-particles i { left:var(--particle-left); font-size:var(--particle-size); animation-duration:var(--particle-duration); animation-delay:var(--particle-delay); }
+.power-card-caption { display:block; margin:12px 0 0; color:#829083; font-size:10px; }
+
 .scene-control-bar { min-height:84px; padding:16px 19px 16px 23px; display:flex; align-items:center; justify-content:space-between; gap:20px; background:rgba(252,251,245,.92); border-top:1px solid rgba(43,65,45,.08); }
 .scene-data-note { display:flex; align-items:center; gap:11px; color:#536153; }.scene-data-note > svg { color:#829080; }.scene-data-note span { display:flex; flex-direction:column; gap:3px; }.scene-data-note strong { font-size:11px; }.scene-data-note small { color:#8c958c; font-size:10px; }
 .scene-control-actions { display:flex; align-items:center; gap:14px; }
@@ -300,6 +311,8 @@ footer{display:flex;justify-content:space-between;gap:50px;padding:53px max(6vw,
 @keyframes atmosphere-breathe{0%,100%{opacity:.72;filter:saturate(1)}50%{opacity:1;filter:saturate(1.08)}}
 @keyframes light-drift{0%,100%{translate:-8px 0;opacity:.48}50%{translate:46px 9px;opacity:.8}}
 @keyframes landscape-breathe{0%,100%{translate:0 0}50%{translate:0 3px}}
+@keyframes rain-drop{to{translate:95px 780px}}
+@keyframes particle-fall{0%{transform:translate(0,-10px) rotate(0);opacity:0}12%{opacity:1}100%{transform:translate(var(--particle-drift),680px) rotate(260deg);opacity:0}}
 
 @media (max-width: 980px) {
   .hero{grid-template-columns:1fr;gap:45px;padding-top:150px}.hero-market-card{justify-self:start;width:min(100%,600px)}

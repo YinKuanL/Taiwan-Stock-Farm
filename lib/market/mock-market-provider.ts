@@ -1,11 +1,12 @@
 import { normalizeMarketData } from "@/lib/market/normalize-market-data";
+import { DEMO_LAST_UPDATED, DEMO_TRADING_DATE } from "@/lib/market/demo-constants";
 import type { MarketSnapshot } from "@/lib/market/types";
 
 export function getMockMarketSnapshot(): MarketSnapshot {
   return normalizeMarketData({
     marketName: "臺灣證券交易所｜示範戰場",
-    tradingDate: new Date().toISOString().slice(0, 10),
-    lastUpdated: new Date().toISOString(),
+    tradingDate: DEMO_TRADING_DATE,
+    lastUpdated: DEMO_LAST_UPDATED,
     status: "demo",
     indexValue: 22984.62,
     indexChange: -378.16,

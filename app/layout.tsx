@@ -22,6 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
     description: "把台股多空情緒變成會呼吸的農場，並快速查詢上市公司行情與最新財報摘要。",
     manifest: "/manifest.webmanifest",
     applicationName: "Farm Market Battle",
+    other: {
+      "format-detection": "telephone=no, date=no, email=no, address=no",
+    },
     appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "農場戰場" },
     icons: { icon: "/favicon.svg", shortcut: "/favicon.svg", apple: "/favicon.svg" },
     openGraph: {

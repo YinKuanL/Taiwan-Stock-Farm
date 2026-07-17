@@ -30,6 +30,11 @@ test("server-renders the Farm Market Battle product", async () => {
   assert.match(html, /分享戰況/);
   assert.match(html, /查詢個股財報/);
   assert.match(html, /搜尋上市公司/);
+  assert.match(html, /<meta[^>]+name="format-detection"[^>]+content="[^"]*telephone=no[^"]*"/i);
+  assert.match(html, /<meta[^>]+name="format-detection"[^>]+content="[^"]*date=no[^"]*"/i);
+  assert.match(html, /<meta[^>]+name="format-detection"[^>]+content="[^"]*email=no[^"]*"/i);
+  assert.match(html, /<meta[^>]+name="format-detection"[^>]+content="[^"]*address=no[^"]*"/i);
+  assert.doesNotMatch(html, /suppressHydrationWarning/i);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/i);
 });
 
@@ -68,7 +73,7 @@ test("PWA manifest and offline route are available", async () => {
 });
 
 test("ships the market data architecture and removes the disposable preview", async () => {
-  const [packageJson, route, transformer, sceneRules, narration, scenario, stockRoute, financialRoute, researchAdapter] = await Promise.all([
+  const [packageJson, route, transformer, sceneRules, narration, scenario, stockRoute, financialRoute, researchAdapter, appRuntime, nativeBridge] = await Promise.all([
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(new URL("../app/api/market/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/data/transformers.ts", import.meta.url), "utf8"),
@@ -78,6 +83,8 @@ test("ships the market data architecture and removes the disposable preview", as
     readFile(new URL("../app/api/stocks/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/financials/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/data/researchAdapter.ts", import.meta.url), "utf8"),
+    readFile(new URL("../components/AppRuntime.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/native/snapshotBridge.ts", import.meta.url), "utf8"),
   ]);
 
   assert.match(packageJson, /"framer-motion"/);
@@ -92,6 +99,9 @@ test("ships the market data architecture and removes the disposable preview", as
   assert.match(stockRoute, /searchListedStocks/);
   assert.match(financialRoute, /getFinancialReport/);
   assert.match(researchAdapter, /t187ap06_L_ci/);
+  assert.match(appRuntime, /import\("@capacitor\/core"\)/);
+  assert.match(nativeBridge, /typeof window === "undefined"/);
+  assert.doesNotMatch(nativeBridge, /^import .*@capacitor\/core/m);
   await assert.rejects(access(new URL("../app/_sites-preview/SkeletonPreview.tsx", import.meta.url)));
   await access(new URL("../public/og.png", import.meta.url));
   await access(new URL("../app/battle/page.tsx", import.meta.url));

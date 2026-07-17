@@ -29,7 +29,7 @@ export async function getMarketSnapshot(): Promise<MarketSnapshot> {
     return realtimeQuote ? mergeRealtimeQuote(snapshot, realtimeQuote) : snapshot;
   } catch (error) {
     console.warn("Using demo market snapshot:", error);
-    return { ...mockMarket, lastUpdated: new Date().toISOString() };
+    return mockMarket;
   } finally {
     clearTimeout(timeout);
   }

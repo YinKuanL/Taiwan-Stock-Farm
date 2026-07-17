@@ -1,5 +1,6 @@
 import type { MarketMover } from "@/lib/types/market";
 import { deriveSnapshot } from "@/lib/data/transformers";
+import { DEMO_LAST_UPDATED, DEMO_TRADING_DATE } from "@/lib/market/demo-constants";
 
 const gainers: MarketMover[] = [
   { code: "2454", name: "聯發科", price: 1535, change: 95, changePercent: 6.6, volume: 18642000 },
@@ -20,7 +21,8 @@ const losers: MarketMover[] = [
 export const mockMarket = deriveSnapshot(
   {
     marketName: "臺灣證券交易所｜示範戰局",
-    date: new Date().toISOString().slice(0, 10),
+    date: DEMO_TRADING_DATE,
+    lastUpdated: DEMO_LAST_UPDATED,
     taiexClose: 22984.62,
     taiexChange: -378.16,
     taiexChangePercent: -1.62,
@@ -34,4 +36,3 @@ export const mockMarket = deriveSnapshot(
   },
   "demo",
 );
-

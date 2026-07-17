@@ -1,4 +1,5 @@
 import type { FarmMood, MarketMover, MarketSnapshot } from "@/lib/types/market";
+import { DEMO_LAST_UPDATED, DEMO_TRADING_DATE } from "@/lib/market/demo-constants";
 
 type TwseIndexRow = Record<string, string>;
 type TwseStockRow = Record<string, string>;
@@ -20,6 +21,7 @@ const rocDateToIso = (date: string | undefined) => {
 export interface SnapshotSeed {
   marketName?: string;
   date?: string;
+  lastUpdated?: string;
   taiexClose?: number;
   taiexChange?: number;
   taiexChangePercent?: number;
@@ -63,8 +65,8 @@ export function deriveSnapshot(
 
   return {
     marketName: seed.marketName ?? "臺灣證券交易所",
-    date: seed.date ?? new Date().toISOString().slice(0, 10),
-    lastUpdated: new Date().toISOString(),
+    date: seed.date ?? (dataMode === "demo" ? DEMO_TRADING_DATE : new Date().toISOString().slice(0, 10)),
+    lastUpdated: seed.lastUpdated ?? (dataMode === "demo" ? DEMO_LAST_UPDATED : new Date().toISOString()),
     taiexClose: seed.taiexClose ?? 0,
     taiexChange: seed.taiexChange ?? 0,
     taiexChangePercent: changePercent,
@@ -137,4 +139,3 @@ export function transformTwseData(
     "live",
   );
 }
-

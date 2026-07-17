@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { App } from "@capacitor/app";
-import { Capacitor } from "@capacitor/core";
 import { useRouter } from "next/navigation";
 
 export default function AppRuntime() {
@@ -17,7 +15,6 @@ export default function AppRuntime() {
   }, []);
 
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
     let disposed = false;
     let removeListener: (() => Promise<void>) | undefined;
     const openDeepLink = (url: string | undefined) => {
@@ -29,10 +26,19 @@ export default function AppRuntime() {
         // Ignore malformed external links.
       }
     };
-    void App.getLaunchUrl().then((result) => !disposed && openDeepLink(result?.url));
-    void App.addListener("appUrlOpen", ({ url }) => openDeepLink(url)).then((handle) => {
-      removeListener = () => handle.remove();
-    });
+    const connectNativeBridge = async () => {
+      const [{ App }, { Capacitor }] = await Promise.all([
+        import("@capacitor/app"),
+        import("@capacitor/core"),
+      ]);
+      if (disposed || !Capacitor.isNativePlatform()) return;
+      const launchResult = await App.getLaunchUrl();
+      if (!disposed) openDeepLink(launchResult?.url);
+      const handle = await App.addListener("appUrlOpen", ({ url }) => openDeepLink(url));
+      if (disposed) await handle.remove();
+      else removeListener = () => handle.remove();
+    };
+    void connectNativeBridge().catch(() => undefined);
     return () => {
       disposed = true;
       void removeListener?.();
