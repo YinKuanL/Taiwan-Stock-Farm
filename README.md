@@ -68,21 +68,34 @@ getMarketSnapshot(): Promise<MarketSnapshot>
 
 ## 本機開發
 
-需求：Node.js 22.13+。專案目前保留 npm lockfile，也可使用 pnpm。
+需求：Node.js 22.13+、pnpm 11.9+。本專案的安裝、開發、測試與部署統一使用 pnpm。
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-或：
+一般網址是 `http://localhost:3000`。
+
+## Cloudflare Workers 部署
+
+- Worker：`taiwan-stock-farm`
+- 正式網址：<https://taiwan-stock-farm.1203andyliang.workers.dev>
+- GitHub repository 已連接 Cloudflare Workers Builds；push 到部署分支後，Cloudflare 會安裝依賴並執行設定好的 build／deploy 流程。
+
+手動部署或重跑部署：
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
+pnpm build
+pnpm exec wrangler whoami
+pnpm deploy:cloudflare
 ```
 
-一般網址是 `http://localhost:3000`。
+尚未登入 Wrangler 時執行 `pnpm exec wrangler login`，發生執行期錯誤時可用 `pnpm exec wrangler tail taiwan-stock-farm` 查看 Worker log。不得把 Cloudflare API token、帳號密碼或其他秘密寫入 repository，也不要執行 `npm audit fix --force`。
+
+Cloudflare 部署包含 `/`、`/battle`、`/offline`、`/api/market`、`/api/realtime`、`/api/stocks`、`/api/candles` 與 `/api/financials`。外部市場來源失敗時會保留明確標示的 deterministic demo fallback，不會把 demo 偽裝成 live。
 
 ## 型別、測試、Lint 與 production build
 
@@ -127,9 +140,8 @@ App Name：`Farm Market Battle`
 在 Mac：
 
 ```bash
-pnpm build
 pnpm ios:add
-pnpm ios:sync
+CAPACITOR_SERVER_URL=https://taiwan-stock-farm.1203andyliang.workers.dev pnpm ios:sync
 pnpm ios:open
 ```
 

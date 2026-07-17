@@ -2,12 +2,14 @@
   "name": "farm-market-battle",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.9.0",
   "engines": {
     "node": ">=22.13.0"
   },
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
+    "deploy:cloudflare": "vinext deploy --name taiwan-stock-farm",
     "start": "vinext start",
     "test": "tsx --test tests/market.test.ts tests/hydration.test.ts && node --test tests/rendered-html.test.mjs tests/ios-source.test.mjs",
     "typecheck": "tsc --noEmit",
