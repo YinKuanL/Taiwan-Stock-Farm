@@ -1,0 +1,82 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage/
+/test-results/
+/playwright-report/
+
+# next.js
+/.next/
+/.vinext/
+/out/
+/build/
+/dist/
+
+# misc
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.pem
+*.p12
+*.mobileprovision
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# environment and secrets
+.env*
+!.env.example
+
+# vercel
+.vercel/
+
+# TypeScript / local tooling
+next-env.d.ts
+*.tsbuildinfo
+/.wrangler/
+/outputs/
+/work/
+
+# Capacitor generated caches
+.capacitor/
+capacitor.config.local.ts
+
+# Xcode user-specific and build products
+DerivedData/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+.build/
+
+# CocoaPods / Carthage generated dependencies
+Pods/
+Carthage/Build/
+
+# fastlane generated reports and screenshots
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# local editor state
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
