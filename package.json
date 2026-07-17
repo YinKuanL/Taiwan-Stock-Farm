@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vinext dev",
     "build": "vinext build",
-    "deploy:cloudflare": "vinext deploy --name taiwan-stock-farm",
+    "deploy:cloudflare": "wrangler deploy",
     "start": "vinext start",
     "test": "tsx --test tests/market.test.ts tests/hydration.test.ts && node --test tests/rendered-html.test.mjs tests/ios-source.test.mjs",
     "typecheck": "tsc --noEmit",
